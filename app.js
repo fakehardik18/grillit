@@ -31,7 +31,7 @@ async function roastUser() {
         body: JSON.stringify({
             model: 'meta-llama/Llama-3-8b-chat-hf',
             messages: [
-                { role: 'user', content: `Roast a user named ${username} based on this data ${JSON.stringify(userData)}.In the form of a paragraph` }
+                { role: 'user', content: `Roast a user named ${username} based on this data ${JSON.stringify(userData)}` }
             ]
         })
     });
