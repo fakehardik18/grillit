@@ -2,19 +2,23 @@ async function getContent(username) {
     const response = await fetch(`https://www.reddit.com/user/${username}.json`);
     const data = await response.json();
     const user_data = [];
+    
     for (const post of data['data']['children']) {
         try {
             const postData = {
-                title: post['data']['link_title'],
-                content: post['data']['body']
+                title: post['data']['title'] || post['data']['link_title'] || "",
+                content: post['data']['selftext'] || post['data']['body'] || ""
             };
             user_data.push(postData);
         } catch (error) {
-            
+            // Log the error if needed
+            console.error('Error processing post:', error);
         }
     }
+    
     return user_data;
 }
+
 
 async function roastUser() {
     const username = document.getElementById('username').value;
@@ -31,7 +35,7 @@ async function roastUser() {
         body: JSON.stringify({
             model: 'meta-llama/Llama-3-8b-chat-hf',
             messages: [
-                { role: 'user', content: `Roast a user named ${username} based on this data ${JSON.stringify(userData)}` }
+                { role: 'user', content: `Roast a user named ${username} based on this data ${JSON.stringify(userData)}. in the form of a 3 para poem with each para having 4 lines` }
             ]
         })
     });
