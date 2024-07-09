@@ -24,7 +24,7 @@ async function roastUser() {
     const username = document.getElementById('username').value;
     const userData = await getContent(username);
     const key = 'd64fa560a12a4ad9cfa423a368cda858d86c403c6ffc6a4cff31457bbc225fe9'; // Replace with your API key
-    console.log(key)
+    //console.log(key)
 
     const response = await fetch('https://api.together.xyz/chat/completions', {
         method: 'POST',
