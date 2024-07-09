@@ -1,30 +1,49 @@
-async function getContent(username) {
-    const response = await fetch(`https://www.reddit.com/user/${username}.json`);
+async function getContent(platform, username) {
+    let url;
+    switch (platform) {
+        case 'reddit':
+            url = `https://www.reddit.com/user/${username}.json`;
+            break;
+        case 'github':
+            url = `https://api.github.com/users/${username}/repos`;
+            break;
+        default:
+            throw new Error('Unsupported platform');
+    }
+    
+    const response = await fetch(url);
     const data = await response.json();
     const user_data = [];
     
-    for (const post of data['data']['children']) {
-        try {
-            const postData = {
-                title: post['data']['title'] || post['data']['link_title'] || "",
-                content: post['data']['selftext'] || post['data']['body'] || ""
-            };
-            user_data.push(postData);
-        } catch (error) {
-            // Log the error if needed
-            console.error('Error processing post:', error);
+    if (platform === 'reddit') {
+        for (const post of data['data']['children']) {
+            try {
+                const postData = {
+                    title: post['data']['title'] || post['data']['link_title'] || "",
+                    content: post['data']['selftext'] || post['data']['body'] || ""
+                };
+                user_data.push(postData);
+            } catch (error) {
+                console.error('Error processing post:', error);
+            }
         }
+    } else if (platform === 'github') {
+        data.forEach(repo => {
+            user_data.push({
+                title: repo.name,
+                content: repo.description || ""
+            });
+        });
     }
     
     return user_data;
 }
 
-
 async function roastUser() {
+    const platform = document.getElementById('platform').value;
     const username = document.getElementById('username').value;
-    const userData = await getContent(username);
+    const userData = await getContent(platform, username);
     const key = 'd64fa560a12a4ad9cfa423a368cda858d86c403c6ffc6a4cff31457bbc225fe9'; // Replace with your API key
-    //console.log(key)
 
     const response = await fetch('https://api.together.xyz/chat/completions', {
         method: 'POST',
